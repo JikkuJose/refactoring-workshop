@@ -1,18 +1,34 @@
 require_relative 'setup'
 
+class User
+  def signed_up_in_a_week?
+    created_at < a_week_before
+  end
+
+  def a_week_before
+    Time.now - 7 * 24 * 3600
+  end
+end
+
 class ProjectsController
   def index
-    # When user is admitted at least a week ago we show it's active projects
-    if current_user && current_user.created_at < (Time.now - 7*24*3600)
+    if recent_user?
       @projects = current_user.active_projects
-
-    # If not admitted we show some featured projects, and set a marketing flash
-    # message when user is new
     else
-      if current_user && current_user.created_at > (Time.now - 7*24*3600)
-        @flash_msg = 'Sign up for having your own projects, and see promo ones!'
-      end
+      set_signup_flash_message if member?
       @projects = Project.featured
     end
+  end
+
+  def recent_user?
+    current_user.signed_up_in_a_week?
+  end
+
+  def member?
+    !!current_user
+  end
+
+  def set_signup_flash_message
+    @flash_msg = 'Sign up for having your own projects, and see promo ones!'
   end
 end
