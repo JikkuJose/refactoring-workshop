@@ -1,14 +1,29 @@
 require_relative 'setup'
 
+class NullSubscription
+  def cancel
+  end
+
+  def name
+    "none"
+  end
+
+  def status
+    "-"
+  end
+
+  def trial_days
+    "-"
+  end
+end
+
 class User
   def last_subscription
-    subscriptions.last
+    subscriptions.last || NullSubscription.new
   end
 
   def cancel_subscription
-    if last_subscription
-      last_subscription.cancel
-    end
+    last_subscription.cancel
   end
 end
 
@@ -28,26 +43,14 @@ class StatusReportJob
   private
 
   def last_name(user)
-    if user.last_subscription && user.last_subscription.respond_to?(:name)
-      user.last_subscription.name
-    else
-      'none'
-    end
+    user.last_subscription.name
   end
 
   def last_status(user)
-    if user.last_subscription && user.last_subscription.respond_to?(:status)
-      user.last_subscription.status
-    else
-      '-'
-    end
+    user.last_subscription.status
   end
 
   def last_trial_days(user)
-    if user.last_subscription && user.last_subscription.respond_to?(:trial_days)
-      user.last_subscription.trial_days
-    else
-      '-'
-    end
+    user.last_subscription.trial_days
   end
 end
