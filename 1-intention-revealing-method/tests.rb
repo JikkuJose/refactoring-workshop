@@ -1,8 +1,6 @@
 require 'minitest/autorun'
 require_relative 'app'
-require 'minitest/reporters'
-
-Minitest::Reporters.use! [Minitest::Reporters::DefaultReporter.new({detailed_skip: false})]
+require_relative "../test_helper"
 
 class TestProjectsController < Minitest::Test
   def setup
