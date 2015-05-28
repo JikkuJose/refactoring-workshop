@@ -33,16 +33,17 @@ end
 class User
   attr_accessor :subscription
 
-  def initialize
+  def initialize_subscription
     @subscription_service ||= SubscriptionService.new(self)
-    super
   end
 
   def subscribe
+    initialize_subscription
     @subscription_service.subscribe
   end
 
   def unsubscribe
+    initialize_subscription
     @subscription_service.unsubscribe
   end
 end
