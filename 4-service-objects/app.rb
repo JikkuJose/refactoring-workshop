@@ -1,17 +1,14 @@
 require_relative 'setup'
 
-class User
-  attr_accessor :subscription
-
-  # validations
-  # callbacks
-  # authentication logic
-  # notifications logic
+class SubscriptionService
+  def initialize(user)
+    @user = user
+  end
 
   def subscribe
     api_result = try_api { PaymentGateway.subscribe }
     if api_result == :success
-      self.subscription = :monthly_plan
+      @user.subscription = :monthly_plan
     end
     api_result
   end
@@ -19,20 +16,33 @@ class User
   def unsubscribe
     api_result = try_api { PaymentGateway.unsubscribe }
     if api_result == :success
-      self.subscription = nil
+      @user.subscription = nil
     end
     api_result
   end
 
   private
 
-  # Try API connection, trap and log it on failures
   def try_api
     yield
   rescue SystemCallError => e
-    # log API connection failure
     :network_error
   end
+end
 
-  # Other private methods
+class User
+  attr_accessor :subscription
+
+  def initialize
+    @subscription_service ||= SubscriptionService.new(self)
+    super
+  end
+
+  def subscribe
+    @subscription_service.subscribe
+  end
+
+  def unsubscribe
+    @subscription_service.unsubscribe
+  end
 end
